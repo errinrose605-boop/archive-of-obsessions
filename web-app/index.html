@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Archive of Obsessions</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div><strong id="currentTitle">Cover</strong><small id="currentMeta">Page 1</small></div>
+      </div>
+      <div class="toolbar">
+        <button id="editToggle" class="active">✦ Edit</button>
+        <button id="addText">T Add text</button>
+        <label class="button">▧ Add image<input id="imageInput" type="file" accept="image/*" hidden></label>
+        <button id="duplicatePage">⧉ Duplicate</button>
+        <button id="addPage">＋ New page</button>
+        <button id="moreToggle">•••</button>
+      </div>
+      <div id="moreMenu" class="more-menu hidden">
+        <button id="moveUp">Move page earlier</button>
+        <button id="moveDown">Move page later</button>
+        <button id="deletePage" class="danger">Delete page</button>
+        <hr>
+        <button id="backupData">Download backup</button>
+        <label>Restore backup<input id="restoreInput" type="file" accept=".json,application/json" hidden></label>
+        <button id="resetData" class="danger">Reset all edits</button>
+        <hr>
+        <button id="printPage">Export current page to PDF</button>
+        <button id="printSection">Export current section to PDF</button>
+        <button id="printAll">Export entire journal to PDF</button>
+      </div>
+    </header>
+
+    <section class="stage">
+      <button id="previousPage" class="page-arrow previous" aria-label="Previous page">‹</button>
+      <div id="pageShell" class="page-shell">
+        <img id="pageArtwork" class="page-artwork" alt="">
+        <div id="editableLayer" class="editable-layer"></div>
+        <div id="navigationLayer" class="navigation-layer"></div>
+      </div>
+      <button id="nextPage" class="page-arrow next" aria-label="Next page">›</button>
+    </section>
+
+    <footer class="statusbar">
+      <span id="saveStatus">All changes saved locally</span>
+      <div class="zoom">
+        <button id="zoomOut">−</button>
+        <input id="zoomRange" type="range" min="35" max="110" value="72">
+        <button id="zoomIn">＋</button>
+        <span id="zoomLabel">72%</span>
+      </div>
+      <div class="jump"><label>Page <input id="pageJump" type="number" min="1"></label><button id="jumpButton">Go</button></div>
+    </footer>
+  </main>
+
+  <dialog id="newPageDialog">
+    <form method="dialog">
+      <h2>Create a new archive page</h2>
+      <p>Choose a reusable journal template. The new page will be added after the current page.</p>
+      <select id="templateSelect"></select>
+      <div class="dialog-actions"><button value="cancel">Cancel</button><button id="confirmNewPage" value="default" class="primary">Create page</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

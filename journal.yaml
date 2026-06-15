@@ -1,0 +1,147 @@
+title: The Archive of Obsessions
+output: output/The Archive of Obsessions - Keeper Moved.pdf
+page_size_points: [512, 768]
+
+hotspots:
+  contents: [0.00, 0.00, 0.18, 0.10]
+  section_home: [0.41, 0.00, 0.59, 0.10]
+  previous: [0.00, 0.88, 0.22, 1.00]
+  next: [0.78, 0.88, 1.00, 1.00]
+
+pages:
+  - id: cover
+    asset: assets/cover/Cover.png
+    type: cover
+
+  - id: contents
+    asset: assets/contents/Contents.png
+    type: contents
+    toc_hotspots:
+      library: [0.20, 0.255, 0.82, 0.305]
+      series: [0.20, 0.325, 0.82, 0.375]
+      standalones: [0.20, 0.395, 0.82, 0.445]
+      hall_of_fame: [0.20, 0.465, 0.82, 0.515]
+      book_boyfriends: [0.20, 0.535, 0.82, 0.585]
+      dnf_graveyard: [0.20, 0.605, 0.82, 0.655]
+      future_obsessions: [0.20, 0.675, 0.82, 0.725]
+      reading_stats: [0.20, 0.745, 0.82, 0.805]
+
+sections:
+  - id: library
+    title: Library
+    divider: assets/dividers/The keepers ledger divider.png
+    pages:
+      - assets/library/Library filled.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty - Copy.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+      - assets/library/Library empty.png
+
+  - id: series
+    title: Series
+    divider: assets/dividers/Single page entries series cover.png
+    template: assets/series/Single page entry series.png
+    count: 10
+
+  - id: standalones
+    title: Standalones
+    divider: assets/dividers/Single page entries standalone cover.png
+    template: assets/standalones/Single page entry standalones.png
+    count: 10
+
+  - id: hall_of_fame
+    title: Hall of Fame
+    divider: assets/dividers/Hall of Fame cover.png
+    templates:
+      - assets/hall_of_fame/Hall of Fame series.png
+      - assets/hall_of_fame/Hall of Fame standalones.png
+    count: 20
+
+  - id: book_boyfriends
+    title: Book Boyfriends
+    divider: assets/dividers/Book Boyfriend Cover.png
+    pages:
+      - assets/book_boyfriends/The Collection Page CREON.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+      - assets/book_boyfriends/Book Boyfriend single page entry.png
+
+  - id: dnf_graveyard
+    title: DNF Graveyard
+    divider: assets/dividers/DNF Graveyard divider.png
+    template: assets/dnf_graveyard/Autopsy report page blank.png
+    count: 20
+
+  - id: future_obsessions
+    title: Future Obsessions
+    divider: assets/dividers/Future reads divider.png
+    templates:
+      - assets/future_obsessions/Future reads.png
+      - assets/future_obsessions/Future reads page 2.png
+    count: 25
+
+  - id: reading_stats
+    title: Reading Stats
+    divider: assets/reading_stats/Stats.png
+    template: assets/reading_stats/Stats.png
+    count: 5
+
+trailing_pages:
+  - id: final_entry
+    asset: assets/cover/End cover.png
+    type: end
+
+move_pages:
+  - id: library
+    position: 155
