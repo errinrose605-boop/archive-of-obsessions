@@ -17,7 +17,7 @@ const templateCatalog = {
       { id: "cover", type: "image", x: 10, y: 10.5, w: 37.2, h: 54.5, placeholder: "Upload series cover" },
       { id: "title", type: "text", x: 54, y: 4.8, w: 39, h: 5.5, placeholder: "Book title", align: "center", size: "large" },
       { id: "author", type: "text", x: 58, y: 11.5, w: 31, h: 3, placeholder: "Author name", align: "center" },
-      { id: "rating", type: "rating", nativeArtwork: true, x: 53.5, y: 19.5, w: 36, h: 5, max: 5 },
+      { id: "rating", type: "rating", nativeArtwork: true, nativeShape: "star", x: 53.5, y: 19.5, w: 36, h: 5, max: 5 },
       { id: "seriesBooks", type: "textarea", x: 55, y: 30.5, w: 36, h: 11.5, placeholder: "Books in series..." },
       { id: "statuses", type: "checks", x: 58, y: 47.5, w: 30, h: 13.5, options: ["Hall of Fame", "Comfort Read", "Book Hangover", "Re-read", "DNF"] },
       { id: "synopsis", type: "textarea", x: 52.5, y: 68, w: 43, h: 20, placeholder: "Write a synopsis..." }

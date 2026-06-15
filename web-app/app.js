@@ -210,6 +210,7 @@ function renderField(page, field, isPrint = false) {
   } else if (field.type === "rating") {
     wrap.classList.add("rating-field");
     if (field.nativeArtwork) wrap.classList.add("native-rating");
+    if (field.nativeShape) wrap.classList.add(`native-${field.nativeShape}`);
     for (let i = 1; i <= field.max; i++) {
       const star = document.createElement("button");
       star.textContent = field.nativeArtwork ? "" : (field.icon || "☆");
