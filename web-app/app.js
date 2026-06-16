@@ -269,11 +269,28 @@ function imageActions(page, fieldId) {
     const button = document.createElement("button"); button.textContent = label;
     button.onclick = () => {
       const image = page.data[fieldId];
-      image.zoom = Math.max(1, Math.min(3, (image.zoom || 1) + amount));
+      image.zoom = Math.max(.35, Math.min(4, (image.zoom || 1) + amount));
       saveState(); renderCurrentPage();
     };
     actions.appendChild(button);
   });
+  [["<", -6, 0], ["^", 0, -6], ["v", 0, 6], [">", 6, 0]].forEach(([label, x, y]) => {
+    const button = document.createElement("button"); button.textContent = label;
+    button.onclick = event => {
+      event.preventDefault(); event.stopPropagation();
+      const image = page.data[fieldId];
+      image.x = Math.max(0, Math.min(100, (image.x ?? 50) + x));
+      image.y = Math.max(0, Math.min(100, (image.y ?? 50) + y));
+      saveState(); renderCurrentPage();
+    };
+    actions.appendChild(button);
+  });
+  const fit = document.createElement("button"); fit.textContent = "Fit"; fit.onclick = event => {
+    event.preventDefault(); event.stopPropagation();
+    Object.assign(page.data[fieldId], { x: 50, y: 50, zoom: 1 });
+    saveState(); renderCurrentPage();
+  };
+  actions.appendChild(fit);
   const replace = document.createElement("button"); replace.textContent = "Replace"; replace.onclick = () => chooseImage({ page, fieldId });
   const remove = document.createElement("button"); remove.textContent = "×"; remove.onclick = () => { delete page.data[fieldId]; saveState(); renderCurrentPage(); };
   actions.append(replace, remove);
@@ -282,13 +299,15 @@ function imageActions(page, fieldId) {
 
 function enableImagePan(img, page, fieldId) {
   img.style.cursor = "grab";
+  img.style.touchAction = "none";
   img.onpointerdown = event => {
     if (!state.editMode) return;
-    event.preventDefault(); img.setPointerCapture(event.pointerId);
+    event.preventDefault(); event.stopPropagation(); img.setPointerCapture(event.pointerId);
     const start = { x: event.clientX, y: event.clientY, ox: page.data[fieldId].x ?? 50, oy: page.data[fieldId].y ?? 50 };
     img.onpointermove = move => {
-      page.data[fieldId].x = Math.max(0, Math.min(100, start.ox + (move.clientX - start.x) / 2));
-      page.data[fieldId].y = Math.max(0, Math.min(100, start.oy + (move.clientY - start.y) / 2));
+      const bounds = img.getBoundingClientRect();
+      page.data[fieldId].x = Math.max(0, Math.min(100, start.ox + (move.clientX - start.x) / bounds.width * 100));
+      page.data[fieldId].y = Math.max(0, Math.min(100, start.oy + (move.clientY - start.y) / bounds.height * 100));
       img.style.objectPosition = `${page.data[fieldId].x}% ${page.data[fieldId].y}%`;
     };
     img.onpointerup = () => { img.onpointermove = null; saveState(); };
