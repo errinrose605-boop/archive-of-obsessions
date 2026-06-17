@@ -184,6 +184,7 @@ function renderNavigation(page) {
     layer.appendChild(navigationHotspot("Open contents", 0, 0, 100, 100, () => navigate(state.pages.findIndex(item => item.id === "contents"))));
     return;
   }
+  if (state.editMode) return;
   const contentsIndex = state.pages.findIndex(item => item.id === "contents");
   layer.appendChild(navigationHotspot("Back to contents", 0, 0, 18, 10, () => navigate(contentsIndex)));
   layer.appendChild(navigationHotspot("Back to contents", 57, 89, 31, 8, () => navigate(contentsIndex)));
@@ -198,6 +199,7 @@ function fieldBox(node, field) {
 
 function renderField(page, field, isPrint = false) {
   const wrap = fieldBox(document.createElement("div"), field);
+  if (field.className) wrap.classList.add(...field.className.split(" "));
   const value = page.data?.[field.id];
   if (field.type === "text" || field.type === "textarea") {
     const editor = document.createElement("div");
@@ -221,6 +223,8 @@ function renderField(page, field, isPrint = false) {
     }
   } else if (field.type === "checks") {
     wrap.classList.add("checks-field");
+    if (field.layout === "horizontal") wrap.classList.add("checks-horizontal");
+    if (field.marker === "radio") wrap.classList.add("checks-radio");
     const selected = Array.isArray(value) ? value : [];
     field.options.forEach(option => {
       const label = document.createElement("label");
