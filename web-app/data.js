@@ -14,7 +14,7 @@ const templateCatalog = {
   series: {
     label: "Series entry", artwork: "series/Single page entry series clean.png",
     fields: [
-      { id: "cover", type: "image", x: 10.5, y: 10.5, w: 36.5, h: 56.5, placeholder: "Upload series cover" },
+      { id: "cover", type: "image", x: 7.8, y: 16.2, w: 40.0, h: 35.8, placeholder: "Upload series cover" },
       { id: "title", type: "text", x: 51.5, y: 6.9, w: 43.5, h: 5.2, placeholder: "Book title", align: "center", size: "large", className: "fit-title title-mask" },
       { id: "author", type: "text", x: 60.5, y: 15.1, w: 30, h: 3.2, placeholder: "Author name", align: "center", className: "title-mask" },
       { id: "rating", type: "rating", nativeArtwork: true, nativeShape: "star", x: 51.5, y: 22.5, w: 34.3, h: 4.2, max: 5 },
@@ -26,7 +26,7 @@ const templateCatalog = {
   standalone: {
     label: "Standalone entry", artwork: "standalones/Single page entry standalones clean.png",
     fields: [
-      { id: "cover", type: "image", x: 9.6, y: 9, w: 37.5, h: 60, placeholder: "Upload book cover" },
+      { id: "cover", type: "image", x: 7.5, y: 13.7, w: 40.5, h: 40.4, placeholder: "Upload book cover" },
       { id: "title", type: "text", x: 51.5, y: 5.7, w: 44, h: 5.7, placeholder: "Book title", align: "center", size: "large", className: "fit-title" },
       { id: "author", type: "text", x: 59, y: 13.1, w: 31, h: 3, placeholder: "Author name", align: "center" },
       { id: "rating", type: "rating", nativeArtwork: true, nativeShape: "star", x: 52, y: 20.8, w: 39.5, h: 4.8, max: 5 },

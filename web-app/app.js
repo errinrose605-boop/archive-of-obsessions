@@ -438,6 +438,8 @@ function renderCustom(page, item, isPrint = false) {
     enableCustomDrag(wrap, item);
     const controls = document.createElement("div");
     controls.className = "custom-actions";
+    const move = document.createElement("button"); move.textContent = "Move"; move.title = "Drag to move";
+    move.onpointerdown = event => startCustomMove(event, wrap, item);
     const smaller = document.createElement("button"); smaller.textContent = "-"; smaller.title = "Make smaller";
     smaller.onclick = () => { item.w = Math.max(8, item.w - 3); item.h = Math.max(5, item.h - 3); saveState(); renderCurrentPage(); };
     const larger = document.createElement("button"); larger.textContent = "+"; larger.title = "Make larger";
@@ -446,7 +448,7 @@ function renderCustom(page, item, isPrint = false) {
     lock.onclick = () => { item.locked = !item.locked; saveState(); renderCurrentPage(); };
     const remove = document.createElement("button"); remove.textContent = "x"; remove.title = "Delete";
     remove.onclick = () => { page.custom = page.custom.filter(x => x.id !== item.id); selectedCustomId = null; saveState(); renderCurrentPage(); };
-    controls.append(smaller, larger, lock, remove);
+    controls.append(move, smaller, larger, lock, remove);
     wrap.appendChild(controls);
     if (!item.locked) {
       const resize = document.createElement("button");
@@ -475,6 +477,27 @@ function enableCustomDrag(node, item) {
       node.style.top = `${item.y}%`;
     };
     node.onpointerup = () => { node.onpointermove = null; saveState(); renderStylePanel(); };
+  };
+}
+
+function startCustomMove(event, node, item) {
+  if (item.locked) return;
+  event.preventDefault();
+  event.stopPropagation();
+  node.setPointerCapture(event.pointerId);
+  selectedCustomId = item.id;
+  const shell = $("#pageShell").getBoundingClientRect();
+  const start = { x: event.clientX, y: event.clientY, ox: item.x, oy: item.y };
+  node.onpointermove = move => {
+    item.x = Math.max(0, Math.min(100 - item.w, start.ox + (move.clientX - start.x) / shell.width * 100));
+    item.y = Math.max(0, Math.min(100 - item.h, start.oy + (move.clientY - start.y) / shell.height * 100));
+    node.style.left = `${item.x}%`;
+    node.style.top = `${item.y}%`;
+  };
+  node.onpointerup = () => {
+    node.onpointermove = null;
+    saveState();
+    renderStylePanel();
   };
 }
 
