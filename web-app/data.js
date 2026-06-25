@@ -12,7 +12,7 @@ const templateCatalog = {
     })
   },
   series: {
-    label: "Series entry", artwork: "series/Single page entry series.png",
+    label: "Series entry", artwork: "series/Single page entry series clean.png",
     fields: [
       { id: "cover", type: "image", x: 10.5, y: 10.5, w: 36.5, h: 56.5, placeholder: "Upload series cover" },
       { id: "title", type: "text", x: 51.5, y: 6.9, w: 43.5, h: 5.2, placeholder: "Book title", align: "center", size: "large", className: "fit-title title-mask" },
@@ -24,7 +24,7 @@ const templateCatalog = {
     ]
   },
   standalone: {
-    label: "Standalone entry", artwork: "standalones/Single page entry standalones.png",
+    label: "Standalone entry", artwork: "standalones/Single page entry standalones clean.png",
     fields: [
       { id: "cover", type: "image", x: 9.6, y: 9, w: 37.5, h: 60, placeholder: "Upload book cover" },
       { id: "title", type: "text", x: 51.5, y: 5.7, w: 44, h: 5.7, placeholder: "Book title", align: "center", size: "large", className: "fit-title" },
