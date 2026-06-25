@@ -96,6 +96,10 @@ function migrateState() {
   if ((state.dataVersion || 1) < 7) {
     state.pages.filter(page => page.template === "series").forEach(seedSeriesCanvasText);
   }
+  state.pages.filter(page => page.template === "series" && page.custom?.some(item => item.canvasSeed === "series-v1")).forEach(page => {
+    page.canvasSeeded ||= {};
+    page.canvasSeeded.seriesV1 = true;
+  });
   state.dataVersion = DATA_VERSION;
   const migratedIndex = state.pages.findIndex(page => page.id === currentId);
   if (migratedIndex >= 0) state.current = migratedIndex;
@@ -143,7 +147,9 @@ function canvasText(id, text, x, y, w, h, options = {}) {
 
 function seedSeriesCanvasText(page) {
   page.custom ||= [];
-  if (page.custom.some(item => item.canvasSeed === "series-v1")) return;
+  page.canvasSeeded ||= {};
+  if (page.canvasSeeded.seriesV1) return;
+  page.canvasSeeded.seriesV1 = true;
   const data = page.data || {};
   const starters = [
     canvasText(`series-title-${page.id}`, data.title || "", 51.5, 6.8, 43.5, 5.2, { size: 25, align: "center", mask: true }),
@@ -386,7 +392,15 @@ function renderCustom(page, item, isPrint = false) {
   });
   wrap.onclick = event => {
     if (isPrint || !state.editMode) return;
+    if (event.target.isContentEditable) {
+      if (selectedCustomId !== item.id) {
+        selectedCustomId = item.id;
+        renderStylePanel();
+      }
+      return;
+    }
     event.stopPropagation();
+    if (selectedCustomId === item.id) return;
     selectedCustomId = item.id;
     renderCurrentPage();
   };
@@ -400,6 +414,11 @@ function renderCustom(page, item, isPrint = false) {
     editor.className = "textarea-field canvas-text";
     editor.contentEditable = !isPrint && state.editMode && !item.locked ? "true" : "false";
     editor.textContent = item.text || "";
+    editor.addEventListener("click", event => {
+      event.stopPropagation();
+      selectedCustomId = item.id;
+      renderStylePanel();
+    });
     editor.addEventListener("keydown", event => {
       if (event.key !== "Enter") return;
       event.preventDefault();
