@@ -15,6 +15,7 @@
       <div class="toolbar">
         <button id="editToggle" class="active">✦ Edit</button>
         <button id="addText">T Add text</button>
+        <button id="addMaskedText">Add masked text</button>
         <label class="button">▧ Add image<input id="imageInput" type="file" accept="image/*" hidden></label>
         <button id="duplicatePage">⧉ Duplicate</button>
         <button id="addPage">＋ New page</button>
@@ -46,6 +47,30 @@
         <div id="navigationLayer" class="navigation-layer"></div>
       </div>
       <button id="nextPage" class="page-arrow next" aria-label="Next page">›</button>
+      <aside id="stylePanel" class="style-panel hidden">
+        <strong>Text box</strong>
+        <label>Font
+          <select id="styleFont">
+            <option value="Georgia, 'Times New Roman', serif">Classic serif</option>
+            <option value="'Times New Roman', serif">Manuscript serif</option>
+            <option value="'Trebuchet MS', sans-serif">Clean readable</option>
+            <option value="'Brush Script MT', cursive">Script</option>
+          </select>
+        </label>
+        <label>Size <input id="styleSize" type="range" min="10" max="42"></label>
+        <label>Colour <input id="styleColor" type="color"></label>
+        <label>Align
+          <select id="styleAlign">
+            <option value="left">Left</option>
+            <option value="center">Centre</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+        <label class="style-check"><input id="styleMask" type="checkbox"> Dark backing</label>
+        <label class="style-check"><input id="styleLocked" type="checkbox"> Lock position</label>
+        <button id="styleDuplicate">Duplicate box</button>
+        <button id="styleDelete" class="danger">Delete box</button>
+      </aside>
     </section>
 
     <footer class="statusbar">

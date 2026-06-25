@@ -1,9 +1,10 @@
 const $ = (selector) => document.querySelector(selector);
 const STORAGE_KEY = "archive-of-obsessions-v1";
 const CLOUD_SESSION_KEY = "archive-of-obsessions-supabase-session";
-const DATA_VERSION = 6;
+const DATA_VERSION = 7;
 let state = { pages: buildOriginalPages(), current: 0, editMode: true, zoom: 72, dataVersion: DATA_VERSION };
 let activeImageTarget = null;
+let selectedCustomId = null;
 let saveTimer;
 let cloudSession = JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY) || "null");
 
@@ -92,6 +93,9 @@ function migrateState() {
     );
     state.pages.splice((firstLibraryIndex >= 0 ? firstLibraryIndex : 2) + 1, 0, ...additionalLibraryPages);
   }
+  if ((state.dataVersion || 1) < 7) {
+    state.pages.filter(page => page.template === "series").forEach(seedSeriesCanvasText);
+  }
   state.dataVersion = DATA_VERSION;
   const migratedIndex = state.pages.findIndex(page => page.id === currentId);
   if (migratedIndex >= 0) state.current = migratedIndex;
@@ -122,6 +126,43 @@ function templateFor(page) { return templateCatalog[page.template] || templateCa
 function artworkFor(page) { return ASSET + (page.artwork || templateFor(page).artwork); }
 function pageName(page) { return page.data?.title?.trim() || page.data?.name?.trim() || page.title; }
 
+function canvasText(id, text, x, y, w, h, options = {}) {
+  return {
+    id,
+    type: "text",
+    text: text || "",
+    x, y, w, h,
+    size: options.size || 16,
+    color: options.color || "#e7d5ae",
+    font: options.font || "Georgia, 'Times New Roman', serif",
+    align: options.align || "left",
+    mask: Boolean(options.mask),
+    locked: Boolean(options.locked)
+  };
+}
+
+function seedSeriesCanvasText(page) {
+  page.custom ||= [];
+  if (page.custom.some(item => item.canvasSeed === "series-v1")) return;
+  const data = page.data || {};
+  const starters = [
+    canvasText(`series-title-${page.id}`, data.title || "", 51.5, 6.8, 43.5, 5.2, { size: 25, align: "center", mask: true }),
+    canvasText(`series-author-${page.id}`, data.author || "", 60.5, 15.1, 30, 3.2, { size: 15, align: "center", mask: true }),
+    canvasText(`series-books-${page.id}`, data.seriesBooks || "", 54.2, 33.4, 40.5, 12.6, { size: 14 }),
+    canvasText(`series-synopsis-${page.id}`, data.synopsis || "", 52.8, 71.9, 43, 15.2, { size: 14 })
+  ];
+  starters.forEach(item => {
+    item.canvasSeed = "series-v1";
+    page.custom.push(item);
+  });
+}
+
+function visibleTemplateFields(page) {
+  const fields = templateFor(page).fields;
+  if (page.template !== "series") return fields;
+  return fields.filter(field => !["title", "author", "seriesBooks", "synopsis"].includes(field.id));
+}
+
 function renderAll() {
   document.documentElement.style.setProperty("--zoom", state.zoom / 100);
   $("#zoomRange").value = state.zoom;
@@ -147,9 +188,11 @@ function renderCurrentPage() {
   $("#pageJump").max = state.pages.length;
   const layer = $("#editableLayer");
   layer.innerHTML = "";
-  templateFor(page).fields.forEach(field => layer.appendChild(renderField(page, field)));
+  if (page.template === "series") seedSeriesCanvasText(page);
+  visibleTemplateFields(page).forEach(field => layer.appendChild(renderField(page, field)));
   (page.custom || []).forEach(item => layer.appendChild(renderCustom(page, item)));
   renderNavigation(page);
+  renderStylePanel();
 }
 
 function navigationHotspot(label, x, y, w, h, action) {
@@ -207,6 +250,13 @@ function renderField(page, field, isPrint = false) {
     editor.contentEditable = !isPrint && state.editMode ? "true" : "false";
     editor.dataset.placeholder = field.placeholder || "Click to edit";
     editor.textContent = value || "";
+    if (field.type === "textarea") {
+      editor.addEventListener("keydown", event => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        document.execCommand("insertText", false, "\n");
+      });
+    }
     editor.addEventListener("input", () => updateField(page, field.id, editor.textContent));
     wrap.appendChild(editor);
   } else if (field.type === "rating") {
@@ -321,44 +371,102 @@ function enableImagePan(img, page, fieldId) {
 function renderCustom(page, item, isPrint = false) {
   const wrap = document.createElement("div");
   wrap.className = "field custom-element";
-  Object.assign(wrap.style, { left: `${item.x}%`, top: `${item.y}%`, width: `${item.w}%`, height: `${item.h}%`, fontSize: `${item.size || 16}px` });
+  if (selectedCustomId === item.id) wrap.classList.add("selected");
+  if (item.locked) wrap.classList.add("locked");
+  if (item.mask) wrap.classList.add("masked");
+  Object.assign(wrap.style, {
+    left: `${item.x}%`,
+    top: `${item.y}%`,
+    width: `${item.w}%`,
+    height: `${item.h}%`,
+    fontSize: `${item.size || 16}px`,
+    color: item.color || "#e7d5ae",
+    fontFamily: item.font || "Georgia, 'Times New Roman', serif",
+    textAlign: item.align || "left"
+  });
+  wrap.onclick = event => {
+    if (isPrint || !state.editMode) return;
+    event.stopPropagation();
+    selectedCustomId = item.id;
+    renderCurrentPage();
+  };
   if (item.type === "image") {
-    const img = document.createElement("img"); img.src = item.src; img.style.cssText = "width:100%;height:100%;object-fit:contain;pointer-events:none";
+    const img = document.createElement("img");
+    img.src = item.src;
+    img.style.cssText = "width:100%;height:100%;object-fit:contain;pointer-events:none";
     wrap.appendChild(img);
   } else {
-    const editor = document.createElement("div"); editor.className = "textarea-field"; editor.contentEditable = !isPrint && state.editMode ? "true" : "false"; editor.textContent = item.text || "";
+    const editor = document.createElement("div");
+    editor.className = "textarea-field canvas-text";
+    editor.contentEditable = !isPrint && state.editMode && !item.locked ? "true" : "false";
+    editor.textContent = item.text || "";
+    editor.addEventListener("keydown", event => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      document.execCommand("insertText", false, "\n");
+    });
     editor.oninput = () => { item.text = editor.textContent; saveState(); };
     wrap.appendChild(editor);
   }
-  if (!isPrint) {
+  if (!isPrint && state.editMode) {
     enableCustomDrag(wrap, item);
-    const controls = document.createElement("div"); controls.className = "custom-actions";
-    const smaller = document.createElement("button"); smaller.textContent = "−"; smaller.title = "Make smaller";
+    const controls = document.createElement("div");
+    controls.className = "custom-actions";
+    const smaller = document.createElement("button"); smaller.textContent = "-"; smaller.title = "Make smaller";
     smaller.onclick = () => { item.w = Math.max(8, item.w - 3); item.h = Math.max(5, item.h - 3); saveState(); renderCurrentPage(); };
-    const larger = document.createElement("button"); larger.textContent = "＋"; larger.title = "Make larger";
+    const larger = document.createElement("button"); larger.textContent = "+"; larger.title = "Make larger";
     larger.onclick = () => { item.w = Math.min(90, item.w + 3); item.h = Math.min(90, item.h + 3); saveState(); renderCurrentPage(); };
-    const remove = document.createElement("button"); remove.textContent = "×"; remove.title = "Delete";
-    remove.onclick = () => { page.custom = page.custom.filter(x => x.id !== item.id); saveState(); renderCurrentPage(); };
-    controls.append(smaller, larger, remove); wrap.appendChild(controls);
+    const lock = document.createElement("button"); lock.textContent = item.locked ? "Unlock" : "Lock"; lock.title = "Lock position";
+    lock.onclick = () => { item.locked = !item.locked; saveState(); renderCurrentPage(); };
+    const remove = document.createElement("button"); remove.textContent = "x"; remove.title = "Delete";
+    remove.onclick = () => { page.custom = page.custom.filter(x => x.id !== item.id); selectedCustomId = null; saveState(); renderCurrentPage(); };
+    controls.append(smaller, larger, lock, remove);
+    wrap.appendChild(controls);
+    if (!item.locked) {
+      const resize = document.createElement("button");
+      resize.className = "resize-handle";
+      resize.setAttribute("aria-label", "Resize text box");
+      resize.onpointerdown = event => startCustomResize(event, wrap, item);
+      wrap.appendChild(resize);
+    }
   }
   return wrap;
 }
 
 function enableCustomDrag(node, item) {
   node.onpointerdown = event => {
-    if (!state.editMode || event.target.isContentEditable || event.target.tagName === "BUTTON") return;
-    event.preventDefault(); node.setPointerCapture(event.pointerId);
+    if (!state.editMode || item.locked || event.target.isContentEditable || event.target.tagName === "BUTTON") return;
+    event.preventDefault();
+    node.setPointerCapture(event.pointerId);
+    selectedCustomId = item.id;
+    renderStylePanel();
     const shell = $("#pageShell").getBoundingClientRect();
     const start = { x: event.clientX, y: event.clientY, ox: item.x, oy: item.y };
     node.onpointermove = move => {
       item.x = Math.max(0, Math.min(100 - item.w, start.ox + (move.clientX - start.x) / shell.width * 100));
       item.y = Math.max(0, Math.min(100 - item.h, start.oy + (move.clientY - start.y) / shell.height * 100));
-      node.style.left = `${item.x}%`; node.style.top = `${item.y}%`;
+      node.style.left = `${item.x}%`;
+      node.style.top = `${item.y}%`;
     };
-    node.onpointerup = () => { node.onpointermove = null; saveState(); };
+    node.onpointerup = () => { node.onpointermove = null; saveState(); renderStylePanel(); };
   };
 }
 
+function startCustomResize(event, node, item) {
+  event.preventDefault();
+  event.stopPropagation();
+  node.setPointerCapture(event.pointerId);
+  selectedCustomId = item.id;
+  const shell = $("#pageShell").getBoundingClientRect();
+  const start = { x: event.clientX, y: event.clientY, w: item.w, h: item.h };
+  node.onpointermove = move => {
+    item.w = Math.max(5, Math.min(95 - item.x, start.w + (move.clientX - start.x) / shell.width * 100));
+    item.h = Math.max(3, Math.min(95 - item.y, start.h + (move.clientY - start.y) / shell.height * 100));
+    node.style.width = `${item.w}%`;
+    node.style.height = `${item.h}%`;
+  };
+  node.onpointerup = () => { node.onpointermove = null; saveState(); renderStylePanel(); };
+}
 function updateField(page, id, value) {
   page.data ||= {};
   page.data[id] = value;
@@ -375,6 +483,46 @@ function addCustomImage(src) {
   currentPage().custom ||= [];
   currentPage().custom.push({ id: crypto.randomUUID(), type: "image", src, x: 30, y: 30, w: 35, h: 35 });
   saveState(); renderCurrentPage();
+}
+
+function addCanvasText(mask = false) {
+  const page = currentPage();
+  page.custom ||= [];
+  const item = canvasText(crypto.randomUUID(), "New text", 35, 35, 30, 7, {
+    size: 16,
+    align: "center",
+    mask
+  });
+  page.custom.push(item);
+  selectedCustomId = item.id;
+  saveState();
+  renderCurrentPage();
+}
+
+function selectedCustom() {
+  return currentPage().custom?.find(item => item.id === selectedCustomId && item.type !== "image");
+}
+
+function renderStylePanel() {
+  const panel = $("#stylePanel");
+  if (!panel) return;
+  const item = selectedCustom();
+  panel.classList.toggle("hidden", !state.editMode || !item);
+  if (!item) return;
+  $("#styleFont").value = item.font || "Georgia, 'Times New Roman', serif";
+  $("#styleSize").value = item.size || 16;
+  $("#styleColor").value = item.color || "#e7d5ae";
+  $("#styleAlign").value = item.align || "left";
+  $("#styleMask").checked = Boolean(item.mask);
+  $("#styleLocked").checked = Boolean(item.locked);
+}
+
+function updateSelectedCustom(changes) {
+  const item = selectedCustom();
+  if (!item) return;
+  Object.assign(item, changes);
+  saveState();
+  renderCurrentPage();
 }
 
 function navigate(index) {
@@ -503,7 +651,7 @@ function buildPrintBook(pages) {
     const shell = document.createElement("div"); shell.className = "page-shell print-me";
     const art = document.createElement("img"); art.className = "page-artwork"; art.src = artworkFor(page);
     const layer = document.createElement("div"); layer.className = "editable-layer";
-    templateFor(page).fields.forEach(field => layer.appendChild(renderField(page, field, true)));
+    visibleTemplateFields(page).forEach(field => layer.appendChild(renderField(page, field, true)));
     (page.custom || []).forEach(item => layer.appendChild(renderCustom(page, item, true)));
     shell.append(art, layer); book.appendChild(shell);
   });
@@ -523,10 +671,39 @@ function wireEvents() {
   $("#zoomIn").onclick = () => { state.zoom = Math.min(110, state.zoom + 5); renderAll(); saveState(); };
   $("#moreToggle").onclick = () => $("#moreMenu").classList.toggle("hidden");
   document.addEventListener("click", event => { if (!event.target.closest("#moreMenu,#moreToggle")) $("#moreMenu").classList.add("hidden"); });
-  $("#addText").onclick = () => {
-    currentPage().custom ||= [];
-    currentPage().custom.push({ id: crypto.randomUUID(), type: "text", text: "New note", x: 35, y: 35, w: 30, h: 8, size: 16 });
-    saveState(); renderCurrentPage();
+  $("#addText").onclick = () => addCanvasText(false);
+  $("#addMaskedText").onclick = () => addCanvasText(true);
+  $("#pageShell").onclick = event => {
+    if (!event.target.closest(".custom-element") && !event.target.closest(".style-panel")) {
+      selectedCustomId = null;
+      renderStylePanel();
+      renderCurrentPage();
+    }
+  };
+  $("#styleFont").onchange = event => updateSelectedCustom({ font: event.target.value });
+  $("#styleSize").oninput = event => updateSelectedCustom({ size: Number(event.target.value) });
+  $("#styleColor").oninput = event => updateSelectedCustom({ color: event.target.value });
+  $("#styleAlign").onchange = event => updateSelectedCustom({ align: event.target.value });
+  $("#styleMask").onchange = event => updateSelectedCustom({ mask: event.target.checked });
+  $("#styleLocked").onchange = event => updateSelectedCustom({ locked: event.target.checked });
+  $("#styleDuplicate").onclick = () => {
+    const item = selectedCustom();
+    if (!item) return;
+    const copy = structuredClone(item);
+    copy.id = crypto.randomUUID();
+    copy.x = Math.min(95 - copy.w, copy.x + 3);
+    copy.y = Math.min(95 - copy.h, copy.y + 3);
+    currentPage().custom.push(copy);
+    selectedCustomId = copy.id;
+    saveState();
+    renderCurrentPage();
+  };
+  $("#styleDelete").onclick = () => {
+    const page = currentPage();
+    page.custom = (page.custom || []).filter(item => item.id !== selectedCustomId);
+    selectedCustomId = null;
+    saveState();
+    renderCurrentPage();
   };
   $("#imageInput").onchange = event => {
     const file = event.target.files[0]; if (!file) return;

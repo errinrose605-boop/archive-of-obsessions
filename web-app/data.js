@@ -15,12 +15,12 @@ const templateCatalog = {
     label: "Series entry", artwork: "series/Single page entry series.png",
     fields: [
       { id: "cover", type: "image", x: 10.5, y: 10.5, w: 36.5, h: 56.5, placeholder: "Upload series cover" },
-      { id: "title", type: "text", x: 55, y: 6.2, w: 38, h: 4.8, placeholder: "Book title", align: "center", size: "large", className: "fit-title" },
-      { id: "author", type: "text", x: 60, y: 13.2, w: 30, h: 3.2, placeholder: "Author name", align: "center" },
-      { id: "rating", type: "rating", nativeArtwork: true, nativeShape: "star", x: 51.4, y: 21.4, w: 34.8, h: 4.8, max: 5 },
-      { id: "seriesBooks", type: "textarea", x: 53.8, y: 32.8, w: 42, h: 17, placeholder: "Books in series...", className: "lined-field numbered-lines" },
-      { id: "statuses", type: "checks", x: 58.5, y: 50.1, w: 30, h: 14.8, options: ["Hall of Fame", "Comfort Read", "Book Hangover", "Re-read", "DNF"] },
-      { id: "synopsis", type: "textarea", x: 52.8, y: 70.5, w: 43, h: 17, placeholder: "Write a synopsis...", className: "lined-field" }
+      { id: "title", type: "text", x: 51.5, y: 6.9, w: 43.5, h: 5.2, placeholder: "Book title", align: "center", size: "large", className: "fit-title title-mask" },
+      { id: "author", type: "text", x: 60.5, y: 15.1, w: 30, h: 3.2, placeholder: "Author name", align: "center", className: "title-mask" },
+      { id: "rating", type: "rating", nativeArtwork: true, nativeShape: "star", x: 51.5, y: 22.5, w: 34.3, h: 4.2, max: 5 },
+      { id: "seriesBooks", type: "textarea", x: 54.2, y: 33.4, w: 40.5, h: 12.6, placeholder: "- First book\n- Second book\n- Third book", className: "lined-field series-lines" },
+      { id: "statuses", type: "checks", x: 58.8, y: 51.2, w: 29.5, h: 13.5, options: ["Hall of Fame", "Comfort Read", "Book Hangover", "Re-read", "DNF"] },
+      { id: "synopsis", type: "textarea", x: 52.8, y: 71.9, w: 43, h: 15.2, placeholder: "Write a synopsis...", className: "lined-field synopsis-lines" }
     ]
   },
   standalone: {
