@@ -129,7 +129,7 @@ templateCatalog.collection.fields = Array.from({ length: 12 }, (_, i) => {
 }).flat();
 
 function page(id, section, template, title, artwork) {
-  return { id, section, template, title, artwork: artwork || templateCatalog[template].artwork, data: {}, custom: [] };
+  return { id, section, template, title, artwork: artwork || null, data: {}, custom: [] };
 }
 
 function repeated(section, template, count, title) {

@@ -1,7 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const STORAGE_KEY = "archive-of-obsessions-v1";
 const CLOUD_SESSION_KEY = "archive-of-obsessions-supabase-session";
-const DATA_VERSION = 7;
+const DATA_VERSION = 8;
 let state = { pages: buildOriginalPages(), current: 0, editMode: true, zoom: 72, dataVersion: DATA_VERSION };
 let activeImageTarget = null;
 let selectedCustomId = null;
@@ -95,6 +95,13 @@ function migrateState() {
   }
   if ((state.dataVersion || 1) < 7) {
     state.pages.filter(page => page.template === "series").forEach(seedSeriesCanvasText);
+  }
+  if ((state.dataVersion || 1) < 8) {
+    state.pages.forEach(page => {
+      if (page.template === "series" || page.template === "standalone") {
+        page.artwork = templateCatalog[page.template].artwork;
+      }
+    });
   }
   state.pages.filter(page => page.template === "series" && page.custom?.some(item => item.canvasSeed === "series-v1")).forEach(page => {
     page.canvasSeeded ||= {};
